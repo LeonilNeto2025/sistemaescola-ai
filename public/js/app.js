@@ -8,15 +8,11 @@ let editingNotaId = null;
 let editingDisciplinaId = null;
 
 const LOCAL_API_URL = 'http://localhost:3000';
-const PRODUCTION_API_URL = 'https://sistemaescola-ai.netlify.app/';
 const API_BASE_URL = (() => {
   if (typeof window === 'undefined') return LOCAL_API_URL;
   const hostname = window.location.hostname;
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return LOCAL_API_URL;
-  }
-  if (hostname.endsWith('.netlify.app')) {
-    return PRODUCTION_API_URL;
   }
   return window.location.origin;
 })();
@@ -29,7 +25,9 @@ function apiUrl(path) {
 }
 
 async function fetchJson(url, options = {}) {
-  const response = await fetch(apiUrl(url), {
+  const requestUrl = apiUrl(url);
+  console.debug('fetchJson request:', requestUrl);
+  const response = await fetch(requestUrl, {
     headers: {
       'Content-Type': 'application/json'
     },
