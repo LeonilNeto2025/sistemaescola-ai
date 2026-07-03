@@ -8,20 +8,22 @@ let editingNotaId = null;
 let editingDisciplinaId = null;
 
 const LOCAL_API_URL = 'http://localhost:3000';
-const API_BASE_URL = (() => {
+const API_URL = (() => {
   if (typeof window === 'undefined') return LOCAL_API_URL;
+  if (window.API_URL) {
+    return String(window.API_URL).replace(/\/+$/, '');
+  }
   const hostname = window.location.hostname;
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return LOCAL_API_URL;
   }
-  return window.location.origin;
+  return String(window.location.origin).replace(/\/+$/, '');
 })();
 
-function apiUrl(path) {
-  if (!path) return API_BASE_URL;
+function apiUrl(path = '') {
+  if (!path) return API_URL;
   if (/^(https?:)?\/\//i.test(path)) return path;
-  if (!API_BASE_URL) return path;
-  return API_BASE_URL.replace(/\/$/, '') + (path.startsWith('/') ? path : `/${path}`);
+  return `${API_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
 }
 
 async function fetchJson(url, options = {}) {
