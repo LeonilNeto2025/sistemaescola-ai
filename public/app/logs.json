@@ -1,5 +1,19 @@
 [
   {
+    "id": "b3f78636-9c27-413b-a406-0387801e1619",
+    "timestamp": "2026-07-03T21:19:56.446Z",
+    "user": "USR001",
+    "action": "logout",
+    "details": "Sessão encerrada"
+  },
+  {
+    "id": "c1b359c6-1792-4117-b76c-a3583c01954d",
+    "timestamp": "2026-07-03T21:19:50.301Z",
+    "user": "admin",
+    "action": "login",
+    "details": "Login bem-sucedido como DIRETOR"
+  },
+  {
     "id": "2d381580-15f6-4cc7-9639-dd1418aaa710",
     "timestamp": "2026-07-03T10:46:44.287Z",
     "user": "USR001",
