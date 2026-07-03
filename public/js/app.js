@@ -24,9 +24,21 @@ const API_URL = (() => {
 })();
 
 function apiUrl(path = '') {
-  if (!path) return API_URL;
+  // 1. Defina aqui a URL REAL do seu backend (onde roda o seu Node.js/Express na internet)
+  // EXEMPLO: 'https://sistema-escola-api.onrender.com'
+  const URL_DO_SEU_BACKEND_REAL = 'https://sistemaescola-ai.netlify.app/'; 
+
+  // 2. Identifica se você está testando localmente no computador
+  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  
+  // Se for localhost, usa a porta 3000. Se estiver na internet (Netlify), usa a API real.
+  const BASE_URL = isLocalhost ? 'http://localhost:3000' : URL_DO_SEU_BACKEND_REAL;
+
+  if (!path) return BASE_URL;
   if (/^(https?:)?\/\//i.test(path)) return path;
-  return `${API_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
+  
+  // Garante a união perfeita da URL com a rota
+  return `${BASE_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
 }
 
 async function fetchJson(url, options = {}) {
