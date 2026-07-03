@@ -39,9 +39,25 @@ async function fetchJson(url, options = {}) {
     credentials: 'include',
     ...options
   });
-  const data = await response.json();
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (jsonErr) {
+    console.error('fetchJson: failed to parse JSON response', {
+      url: requestUrl,
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type')
+    });
+    if (!response.ok) {
+      throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
+    }
+    throw jsonErr;
+  }
+
   if (!response.ok) {
-    throw new Error(data.error || 'Erro de comunicação com o servidor.');
+    throw new Error(data?.error || `Erro de comunicação com o servidor. HTTP ${response.status}`);
   }
   return data;
 }
