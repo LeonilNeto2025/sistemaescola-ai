@@ -17,6 +17,9 @@ const API_URL = (() => {
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return LOCAL_API_URL;
   }
+  if (hostname.endsWith('.netlify.app')) {
+    return String(window.location.origin).replace(/\/+$/, '');
+  }
   return String(window.location.origin).replace(/\/+$/, '');
 })();
 
