@@ -7,8 +7,25 @@ let editingCursoId = null;
 let editingNotaId = null;
 let editingDisciplinaId = null;
 
+const API_BASE_URL = (() => {
+  if (typeof window !== 'undefined' && window.API_URL) {
+    return window.API_URL;
+  }
+  if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  return '';
+})();
+
+function apiUrl(path) {
+  if (!path) return API_BASE_URL;
+  if (/^(https?:)?\/\//i.test(path)) return path;
+  if (!API_BASE_URL) return path;
+  return API_BASE_URL.replace(/\/$/, '') + (path.startsWith('/') ? path : `/${path}`);
+}
+
 async function fetchJson(url, options = {}) {
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     headers: {
       'Content-Type': 'application/json'
     },
