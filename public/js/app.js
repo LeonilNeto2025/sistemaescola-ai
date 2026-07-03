@@ -8,6 +8,7 @@ let editingNotaId = null;
 let editingDisciplinaId = null;
 
 const LOCAL_API_URL = 'http://localhost:3000';
+const PRODUCTION_API_URL = 'https://sistemaescola-ai.netlify.app';
 const API_URL = (() => {
   if (typeof window === 'undefined') return LOCAL_API_URL;
   if (window.API_URL) {
@@ -17,28 +18,13 @@ const API_URL = (() => {
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return LOCAL_API_URL;
   }
-  if (hostname.endsWith('.netlify.app')) {
-    return String(window.location.origin).replace(/\/+$/, '');
-  }
-  return String(window.location.origin).replace(/\/+$/, '');
+  return String(PRODUCTION_API_URL).replace(/\/+$/, '');
 })();
 
 function apiUrl(path = '') {
-  // 1. Defina aqui a URL REAL do seu backend (onde roda o seu Node.js/Express na internet)
-  // EXEMPLO: 'https://sistema-escola-api.onrender.com'
-  const URL_DO_SEU_BACKEND_REAL = 'https://sistemaescola-ai.netlify.app/'; 
-
-  // 2. Identifica se você está testando localmente no computador
-  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  
-  // Se for localhost, usa a porta 3000. Se estiver na internet (Netlify), usa a API real.
-  const BASE_URL = isLocalhost ? 'http://localhost:3000' : URL_DO_SEU_BACKEND_REAL;
-
-  if (!path) return BASE_URL;
+  if (!path) return API_URL;
   if (/^(https?:)?\/\//i.test(path)) return path;
-  
-  // Garante a união perfeita da URL com a rota
-  return `${BASE_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
+  return `${API_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
 }
 
 async function fetchJson(url, options = {}) {
