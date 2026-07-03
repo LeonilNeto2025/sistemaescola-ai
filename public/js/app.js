@@ -14,7 +14,7 @@ const API_BASE_URL = (() => {
   if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
-  return '';
+  return 'http://localhost:3000';
 })();
 
 function apiUrl(path) {
