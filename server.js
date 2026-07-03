@@ -9,8 +9,8 @@ const csurf = require('csurf');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const dataPath = path.join(__dirname, 'app', 'dados.json');
-const logsPath = path.join(__dirname, 'app', 'logs.json');
+const dataPath = path.join(__dirname, 'public', 'app', 'dados.json');
+const logsPath = path.join(__dirname, 'public', 'app', 'logs.json');
 const publicPath = path.join(__dirname, 'public');
 
 app.use(helmet({
@@ -686,7 +686,7 @@ app.get('/api/relatorios', requireAuth, requireProfile('DIRETOR', 'FUNCIONARIO',
 
 app.get('/api/backup', requireAuth, requireProfile('DIRETOR'), (req, res) => {
   const data = loadData();
-  const backupFile = path.join(__dirname, 'app', `backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
+  const backupFile = path.join(__dirname, 'public', 'app', `backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
   fs.writeFileSync(backupFile, JSON.stringify(data, null, 2), 'utf8');
   writeLog({ user: req.session.user.id, action: 'backup', details: `Backup gerado em ${backupFile}` });
   res.json({ success: true, file: backupFile });

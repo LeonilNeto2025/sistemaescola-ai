@@ -5,7 +5,7 @@ Aplicação web completa para gestão escolar com base no PRD, SPECS, SKILLS e P
 ## O que foi gerado
 - Backend Node.js com Express (`server.js`)
 - Frontend SPA leve em HTML/CSS/JavaScript (`public/index.html`, `public/css/style.css`, `public/js/app.js`)
-- Persistência simplificada em JSON (`app/dados.json`)
+- Persistência simplificada em JSON (`public/app/dados.json`)
 - Login por perfil, dashboard personalizado e telas de cadastro
 - Relatórios, backup, geração de histórico em PDF e logs de acesso
 - Validações de CPF, e-mail, telefone e idade
@@ -30,7 +30,7 @@ Abra o navegador em `http://localhost:3000`.
 - `server.js` - servidor Express com API REST e autenticação de sessão
 - `package.json` - dependências e scripts
 - `public/` - frontend, CSS e scripts do cliente
-- `app/dados.json` - dados armazenados em JSON
+- `public/app/dados.json` - dados armazenados em JSON
 
 ## Observações
 - O sistema é uma aplicação de demonstração pronta para rodar localmente.
