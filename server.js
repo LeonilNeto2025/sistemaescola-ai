@@ -12,6 +12,29 @@ const app = express();
 const dataPath = path.join(__dirname, 'app', 'dados.json');
 const logsPath = path.join(__dirname, 'app', 'logs.json');
 const publicPath = path.join(__dirname);
+const TEST_USERS = [
+  {
+    id: 'test-professor',
+    nome: 'Professor Teste',
+    login: 'professor.teste',
+    senha: 'prof123',
+    perfil: 'PROFESSOR'
+  },
+  {
+    id: 'test-aluno',
+    nome: 'Aluno Teste',
+    login: 'aluno.teste',
+    senha: 'aluno123',
+    perfil: 'ALUNO'
+  },
+  {
+    id: 'test-secretaria',
+    nome: 'Funcionário de Secretaria',
+    login: 'secretaria.teste',
+    senha: 'sec123',
+    perfil: 'FUNCIONARIO'
+  }
+];
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -238,24 +261,33 @@ app.get('/api/profile', requireAuth, (req, res) => {
 app.post('/api/login', (req, res) => {
   const { login, senha, perfil } = req.body;
   const data = loadData();
-  const user = data.usuarios.find((item) => item.login === String(login).trim());
+  const normalizedLogin = String(login || '').trim();
+  const normalizedSenha = String(senha || '');
+  const testUser = TEST_USERS.find((item) => item.login === normalizedLogin);
+  const user = testUser || data.usuarios.find((item) => item.login === normalizedLogin);
+
   if (!user) {
     return res.status(400).json({ error: 'Usuário ou senha inválidos.' });
   }
+
   const storedHash = user.senhaHash || (user.senha ? hashPassword(user.senha) : '');
-  const validPassword = secureCompare(storedHash, hashPassword(senha));
+  const validPassword = secureCompare(storedHash, hashPassword(normalizedSenha));
   if (!validPassword) {
     return res.status(400).json({ error: 'Usuário ou senha inválidos.' });
   }
-  if (perfil && String(perfil).trim().toUpperCase() !== String(user.perfil).trim().toUpperCase()) {
+
+  const perfilUsuario = String(user.perfil || '').trim().toUpperCase();
+  if (perfil && String(perfil).trim().toUpperCase() !== perfilUsuario) {
     return res.status(403).json({ error: 'Perfil selecionado não corresponde ao usuário.' });
   }
+
   req.session.user = {
     id: user.id,
     nome: user.nome,
-    perfil: user.perfil
+    login: user.login,
+    perfil: perfilUsuario
   };
-  writeLog({ user: user.login, action: 'login', details: `Login bem-sucedido como ${user.perfil}` });
+  writeLog({ user: user.login, action: 'login', details: `Login bem-sucedido como ${perfilUsuario}` });
   res.json({ user: req.session.user });
 });
 
