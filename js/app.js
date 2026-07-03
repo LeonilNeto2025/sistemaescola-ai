@@ -8,7 +8,7 @@ let editingNotaId = null;
 let editingDisciplinaId = null;
 
 const LOCAL_API_URL = 'http://localhost:3000';
-const PRODUCTION_API_URL = 'https://sistemaescola-ai.netlify.app';
+const PRODUCTION_API_URL = window.location.origin || 'https://sistemaescola-ai.netlify.app';
 const API_URL = (() => {
   if (typeof window === 'undefined') return LOCAL_API_URL;
   if (window.API_URL) {
@@ -21,14 +21,262 @@ const API_URL = (() => {
   return String(PRODUCTION_API_URL).replace(/\/+$/, '');
 })();
 
+const MOCK_DATA = {
+  usuarios: [
+    { id: 'USR001', nome: 'Admin Sistema', login: 'admin', senha: '123', perfil: 'DIRETOR' },
+    { id: 'USR002', nome: 'Carlos Silva', login: 'carlos.silva', senha: '123', perfil: 'PROFESSOR' },
+    { id: 'USR003', nome: 'Neto', login: 'neto.secretaria', senha: 'neto123', perfil: 'FUNCIONARIO' },
+    { id: 'USR004', nome: 'Ana Aluna', login: 'ana.aluna', senha: 'aluno123', perfil: 'ALUNO' },
+    { id: 'USR005', nome: 'Professor Teste', login: 'professor.teste', senha: 'prof123', perfil: 'PROFESSOR' },
+    { id: 'USR006', nome: 'Aluno Teste', login: 'aluno.teste', senha: 'aluno123', perfil: 'ALUNO' },
+    { id: 'USR007', nome: 'Funcionário de Secretaria', login: 'secretaria.teste', senha: 'sec123', perfil: 'FUNCIONARIO' },
+    { id: 'USR008', nome: 'Diretor Teste', login: 'diretor.teste', senha: 'diretor123', perfil: 'DIRETOR' }
+  ],
+  cursos: [
+    { id: 'CUR001', nome: 'Java', semestres: 4 },
+    { id: 'CUR002', nome: 'Internet das Coisas', semestres: 2 },
+    { id: 'CUR003', nome: 'Arquitetura de Sistemas', semestres: 3 }
+  ],
+  disciplinas: [
+    { id: 'DISC001', nome: 'Fundamentos Técnicos', cargaHoraria: 100, professor: 'Carlos Silva', turma: 'TUR001' },
+    { id: 'DISC002', nome: 'Estrutura de Dados', cargaHoraria: 60, professor: 'Carlos Silva', turma: 'TUR001' },
+    { id: 'DISC003', nome: 'Internet das Coisas', cargaHoraria: 40, professor: 'Roberto Souza', turma: 'TUR002' }
+  ],
+  alunos: [
+    { id: 'ALU001', nome: 'Ana Aluna', cpf: '52998224725', dataNascimento: '2005-08-10', idade: 20, endereco: 'Rua das Flores, 120', celular: '(15) 98888-7777', email: 'ana.aluna@gmail.com', login: 'ana.aluna' },
+    { id: 'ALU002', nome: 'Rita Santos', cpf: '12345678909', dataNascimento: '2004-04-15', idade: 22, endereco: 'Avenida Brasil, 350', celular: '(15) 99999-9999', email: 'rita.santos@gmail.com', login: 'rita.santos' }
+  ],
+  matriculas: [
+    { id: 'MAT001', numero: '20260001', ano: 2026, alunoId: 'ALU001', cursoId: 'CUR001', dataMatricula: '2026-06-01' }
+  ],
+  notas: [
+    { id: 'NOT001', alunoId: 'ALU001', cursoId: 'CUR001', disciplinaId: 'DISC001', valor: 8.5 }
+  ],
+  historicoEscolar: [
+    { id: 'HIS001', aluno: 'ALU001', curso: 'CUR001', disciplina: 'DISC001', nota: 8.5, ano: 2026, turma: 'TUR001' }
+  ],
+  logs: []
+};
+
+let mockState = JSON.parse(JSON.stringify(MOCK_DATA));
+let mockSessionUser = null;
+
 function apiUrl(path = '') {
   if (!path) return API_URL;
   if (/^(https?:)?\/\//i.test(path)) return path;
   return `${API_URL.replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '')}`;
 }
 
+function cloneData(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function readJsonBody(body) {
+  if (!body) return {};
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body);
+    } catch (err) {
+      return {};
+    }
+  }
+  return body;
+}
+
+function getMockResponse(pathname, options = {}) {
+  const method = String(options.method || 'GET').toUpperCase();
+  const normalizedPath = pathname.startsWith('http') ? new URL(pathname, window.location.origin).pathname : pathname;
+
+  if (normalizedPath === '/api/csrf') {
+    return Promise.resolve({ csrfToken: 'mock-csrf-token' });
+  }
+
+  if (normalizedPath === '/api/profile') {
+    return Promise.resolve({ user: mockSessionUser });
+  }
+
+  if (normalizedPath === '/api/login' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const user = mockState.usuarios.find((item) => item.login === String(payload.login || '').trim());
+    if (!user || String(payload.senha || '') !== String(user.senha || '')) {
+      return Promise.reject(new Error('Usuário ou senha inválidos.'));
+    }
+    const requestedPerfil = String(payload.perfil || '').trim().toUpperCase();
+    if (requestedPerfil && requestedPerfil !== String(user.perfil || '').trim().toUpperCase()) {
+      return Promise.reject(new Error('Perfil selecionado não corresponde ao usuário.'));
+    }
+    mockSessionUser = { id: user.id, nome: user.nome, login: user.login, perfil: String(user.perfil || '').trim().toUpperCase() };
+    mockState.logs.unshift({ id: `mock-${Date.now()}`, timestamp: new Date().toISOString(), user: user.login, action: 'login', details: `Login bem-sucedido como ${mockSessionUser.perfil}` });
+    return Promise.resolve({ user: mockSessionUser });
+  }
+
+  if (normalizedPath === '/api/logout' && method === 'POST') {
+    mockSessionUser = null;
+    return Promise.resolve({ success: true });
+  }
+
+  if (normalizedPath === '/api/usuarios' && method === 'GET') {
+    return Promise.resolve(mockState.usuarios.map(({ senha, senhaHash, ...rest }) => rest));
+  }
+
+  if (normalizedPath === '/api/usuario' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const newUser = { id: `USR${String(mockState.usuarios.length + 1).padStart(3, '0')}`, nome: payload.nome, login: payload.login, senha: payload.senha, perfil: String(payload.perfil || '').toUpperCase() };
+    mockState.usuarios.push(newUser);
+    return Promise.resolve({ success: true, usuario: { id: newUser.id, nome: newUser.nome, login: newUser.login, perfil: newUser.perfil } });
+  }
+
+  if (normalizedPath === '/api/alunos' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.alunos));
+  }
+
+  if (normalizedPath === '/api/aluno' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const aluno = { id: `ALU${String(mockState.alunos.length + 1).padStart(3, '0')}`, ...payload, idade: payload.dataNascimento ? new Date().getFullYear() - new Date(payload.dataNascimento).getFullYear() : '' };
+    mockState.alunos.push(aluno);
+    mockState.usuarios.push({ id: `USR${String(mockState.usuarios.length + 1).padStart(3, '0')}`, nome: aluno.nome, login: aluno.login, senha: aluno.senha, perfil: 'ALUNO' });
+    return Promise.resolve({ success: true, aluno });
+  }
+
+  if (normalizedPath.startsWith('/api/aluno/') && method === 'PUT') {
+    const payload = readJsonBody(options.body);
+    const id = normalizedPath.split('/').pop();
+    const aluno = mockState.alunos.find((item) => item.id === id);
+    if (!aluno) {
+      return Promise.reject(new Error('Aluno não encontrado.'));
+    }
+    Object.assign(aluno, payload);
+    return Promise.resolve({ success: true, aluno });
+  }
+
+  if (normalizedPath === '/api/cursos' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.cursos));
+  }
+
+  if (normalizedPath === '/api/curso' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const curso = { id: `CUR${String(mockState.cursos.length + 1).padStart(3, '0')}`, ...payload };
+    mockState.cursos.push(curso);
+    return Promise.resolve({ success: true, curso });
+  }
+
+  if (normalizedPath.startsWith('/api/curso/') && method === 'PUT') {
+    const payload = readJsonBody(options.body);
+    const id = normalizedPath.split('/').pop();
+    const curso = mockState.cursos.find((item) => item.id === id);
+    if (!curso) {
+      return Promise.reject(new Error('Curso não encontrado.'));
+    }
+    Object.assign(curso, payload);
+    return Promise.resolve({ success: true, curso });
+  }
+
+  if (normalizedPath === '/api/disciplinas' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.disciplinas));
+  }
+
+  if (normalizedPath === '/api/disciplina' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const disciplina = { id: `DISC${String(mockState.disciplinas.length + 1).padStart(3, '0')}`, ...payload };
+    mockState.disciplinas.push(disciplina);
+    return Promise.resolve({ success: true, disciplina });
+  }
+
+  if (normalizedPath.startsWith('/api/disciplina/') && method === 'PUT') {
+    const payload = readJsonBody(options.body);
+    const id = normalizedPath.split('/').pop();
+    const disciplina = mockState.disciplinas.find((item) => item.id === id);
+    if (!disciplina) {
+      return Promise.reject(new Error('Disciplina não encontrada.'));
+    }
+    Object.assign(disciplina, payload);
+    return Promise.resolve({ success: true, disciplina });
+  }
+
+  if (normalizedPath === '/api/matriculas' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.matriculas));
+  }
+
+  if (normalizedPath === '/api/matricula' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const matricula = { id: `MAT${String(mockState.matriculas.length + 1).padStart(3, '0')}`, numero: `${new Date().getFullYear()}${String(mockState.matriculas.length + 1).padStart(4, '0')}`, ...payload };
+    mockState.matriculas.push(matricula);
+    return Promise.resolve({ success: true, matricula });
+  }
+
+  if (normalizedPath === '/api/notas' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.notas));
+  }
+
+  if (normalizedPath === '/api/nota' && method === 'POST') {
+    const payload = readJsonBody(options.body);
+    const nota = { id: `NOT${String(mockState.notas.length + 1).padStart(3, '0')}`, ...payload };
+    mockState.notas.push(nota);
+    mockState.historicoEscolar.push({ id: `HIS${String(mockState.historicoEscolar.length + 1).padStart(3, '0')}`, aluno: payload.alunoId, curso: payload.cursoId, disciplina: payload.disciplinaId, nota: Number(payload.valor), ano: new Date().getFullYear(), turma: '' });
+    return Promise.resolve({ success: true, nota });
+  }
+
+  if (normalizedPath.startsWith('/api/nota/') && method === 'PUT') {
+    const payload = readJsonBody(options.body);
+    const id = normalizedPath.split('/').pop();
+    const nota = mockState.notas.find((item) => item.id === id);
+    if (!nota) {
+      return Promise.reject(new Error('Nota não encontrada.'));
+    }
+    Object.assign(nota, payload);
+    return Promise.resolve({ success: true, nota });
+  }
+
+  if (normalizedPath === '/api/historico' && method === 'GET') {
+    const historico = cloneData(mockState.historicoEscolar).map((item) => ({
+      id: item.id,
+      alunoNome: mockState.alunos.find((aluno) => aluno.id === item.aluno)?.nome || 'Desconhecido',
+      cursoNome: mockState.cursos.find((curso) => curso.id === item.curso)?.nome || 'Desconhecido',
+      disciplinaNome: mockState.disciplinas.find((disciplina) => disciplina.id === item.disciplina)?.nome || 'Desconhecido',
+      nota: item.nota,
+      ano: item.ano,
+      turma: item.turma || '-'
+    }));
+    if (mockSessionUser?.perfil === 'ALUNO') {
+      const aluno = mockState.alunos.find((item) => item.nome.toLowerCase() === mockSessionUser.nome.toLowerCase());
+      if (aluno) {
+        return Promise.resolve(historico.filter((item) => item.alunoNome === aluno.nome));
+      }
+    }
+    return Promise.resolve(historico);
+  }
+
+  if (normalizedPath === '/api/relatorios' && method === 'GET') {
+    return Promise.resolve({
+      totalAlunos: mockState.alunos.length,
+      totalCursos: mockState.cursos.length,
+      totalDisciplinas: mockState.disciplinas.length,
+      totalMatriculas: mockState.matriculas.length,
+      totalNotas: mockState.notas.length,
+      ultimaAtualizacao: new Date().toISOString()
+    });
+  }
+
+  if (normalizedPath === '/api/backup' && method === 'GET') {
+    return Promise.resolve({ success: true, file: 'backup-mock.json' });
+  }
+
+  if (normalizedPath === '/api/logs' && method === 'GET') {
+    return Promise.resolve(cloneData(mockState.logs));
+  }
+
+  return Promise.reject(new Error('Recurso não disponível no modo estático do Netlify.'));
+}
+
 async function fetchJson(url, options = {}) {
   const requestUrl = apiUrl(url);
+  const pathname = requestUrl.startsWith('http') ? new URL(requestUrl, window.location.origin).pathname : requestUrl;
+  const isLocalhost = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+  if (!isLocalhost && pathname.startsWith('/api/')) {
+    return getMockResponse(pathname, options);
+  }
+
   console.debug('fetchJson request:', requestUrl);
   const response = await fetch(requestUrl, {
     headers: {
