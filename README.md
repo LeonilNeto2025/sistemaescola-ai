@@ -1,39 +1,93 @@
 # Sistema Escolar AI
 
-Aplicação web completa para gestão escolar com base no PRD, SPECS, SKILLS e PROJECT.
+Aplicação web completa para gestão escolar com interface dinâmica, autenticação por perfil e persistência de dados.
 
-## O que foi gerado
-- Backend Node.js com Express (`server.js`)
-- Frontend SPA leve em HTML/CSS/JavaScript (`public/index.html`, `public/css/style.css`, `public/js/app.js`)
-- Persistência simplificada em JSON (`public/app/dados.json`)
-- Login por perfil, dashboard personalizado e telas de cadastro
-- Relatórios, backup, geração de histórico em PDF e logs de acesso
-- Validações de CPF, e-mail, telefone e idade
-- Design system azul, verde e amarelo com botões de ação e redundância de sair/cancelar
-- Segurança básica com session cookies, helmet e validações de entrada
+## 📋 Recursos
+- Backend Node.js com Express e segurança com helmet
+- Frontend responsivo em HTML/CSS/JavaScript
+- Autenticação por perfil (Diretor, Secretário, Professor, Aluno)
+- Dashboard personalizado por tipo de usuário
+- Persistência de dados em JSON
+- Sistema de backup automático
+- Geração de relatórios e logs de acesso
+- Validações de dados (CPF, e-mail, telefone, idade)
 
-## Instalação e execução
+## 🚀 Como rodar com Docker (Recomendado)
+
 ```bash
-cd c:\dev\sistemaescola-ai
+docker-compose up --build
+```
+
+A aplicação estará disponível em `http://localhost:3000`.
+
+## 🛠️ Como rodar localmente (sem Docker)
+
+```bash
 npm install
 npm start
 ```
-Abra o navegador em `http://localhost:3000`.
 
-## Usuários de teste
-- Diretor: `admin` / `123`
-- Funcionário da Secretaria: `neto.secretaria` / `neto123`
-- Professor: `carlos.silva` / `123`
-- Aluno: `ana.aluna` / `aluno123`
+A aplicação estará disponível em `http://localhost:3000`.
 
-## Estrutura do projeto
-- `server.js` - servidor Express com API REST e autenticação de sessão
-- `package.json` - dependências e scripts
-- `public/` - frontend, CSS e scripts do cliente
-- `public/app/dados.json` - dados armazenados em JSON
+## 👥 Usuários de teste
 
-## Observações
-- O sistema é uma aplicação de demonstração pronta para rodar localmente.
-- Há backup gerado em arquivo JSON no diretório `app/`.
-- O histórico escolar pode ser exportado em PDF no frontend.
+### Usuários padrão
+- **Diretor**: `admin` / `123`
+- **Secretário**: `neto.secretaria` / `neto123`
+- **Professor**: `carlos.silva` / `123`
+- **Aluno**: `ana.aluna` / `aluno123`
+
+### Usuários de teste adicionais
+- **Professor**: `professor.teste` / `prof123`
+- **Aluno**: `aluno.teste` / `aluno123`
+- **Secretaria**: `secretaria.teste` / `sec123`
+- **Diretor**: `diretor.teste` / `diretor123`
+
+## 📁 Estrutura do projeto
+
+```
+├── server.js                 # Servidor Express principal
+├── index.html               # Página inicial do frontend
+├── package.json             # Dependências e scripts do projeto
+├── Dockerfile               # Configuração Docker
+├── docker-compose.yml       # Orquestração de containers
+├── app/                     # Dados e backups
+│   ├── dados.json          # Banco de dados JSON
+│   ├── logs.json           # Logs de acesso
+│   └── backup-*.json       # Backups automáticos
+├── css/                     # Estilos CSS
+│   └── style.css           # Stylesheet principal
+├── js/                      # Scripts do frontend
+│   └── app.js              # Lógica da aplicação
+├── docs/                    # Documentação
+│   ├── PRD.md              # Especificações de produto
+│   ├── PROJECT.md          # Descrição do projeto
+│   ├── SPECS.md            # Especificações técnicas
+│   └── SKILLS.md           # Habilidades do sistema
+└── prompts/                 # Configurações de prompts
+    └── system-instruction.txt
+```
+
+## 📝 Arquivos importantes
+
+- **server.js** - Servidor Express com rotas de API e autenticação
+- **app/dados.json** - Base de dados principal em JSON
+- **css/style.css** - Design system azul, verde e amarelo
+- **js/app.js** - Lógica da SPA (Single Page Application)
+
+## 📚 Documentação
+
+Acesse os arquivos em `docs/` para mais informações:
+- `PRD.md` - Requisitos e especificações de produto
+- `PROJECT.md` - Descrição geral do projeto
+- `SPECS.md` - Especificações técnicas detalhadas
+- `SKILLS.md` - Funcionalidades e habilidades do sistema
+
+## ⚙️ Tecnologias
+
+- **Backend**: Node.js, Express.js
+- **Frontend**: HTML5, CSS3, JavaScript vanilla
+- **Segurança**: Helmet, CSRF protection, session cookies
+- **Dados**: JSON
+- **DevOps**: Docker, Docker Compose
    

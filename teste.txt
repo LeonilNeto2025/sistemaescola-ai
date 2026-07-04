@@ -1,5 +1,0 @@
-Usuários de teste criados para acesso direto:
-- Professor: professor.teste / prof123
-- Aluno: aluno.teste / aluno123
-- Secretaria: secretaria.teste / sec123
-- Diretor: diretor.teste / diretor123

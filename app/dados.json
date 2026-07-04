@@ -55,6 +55,13 @@
       "senha": "teste2",
       "senhaHash": "f91a799a01ebac97c8995f50381b5be0d43ca7eb0c6a6c6bc07603c5a922d1fa",
       "perfil": "PROFESSOR"
+    },
+    {
+      "id": "USR008",
+      "nome": "Leonil Neto",
+      "login": "neto",
+      "senhaHash": "99e54ef4ffbd384fc6716c41b2ca66cd9fc98f815958011df67479af218cceab",
+      "perfil": "ALUNO"
     }
   ],
   "cursos": [
@@ -148,6 +155,13 @@
       "professor": "Leonil",
       "turma": "Sub-10 B",
       "id": "DISC007"
+    },
+    {
+      "nome": "Delphi",
+      "cargaHoraria": 50,
+      "professor": "Leonil",
+      "turma": "TURMA004",
+      "id": "DISC008"
     }
   ],
   "professores": [
@@ -241,6 +255,17 @@
       "email": "teste@teste.gmail.com",
       "idade": 5,
       "id": "ALU005"
+    },
+    {
+      "nome": "Leonil Neto",
+      "login": "neto",
+      "cpf": "20250687860",
+      "dataNascimento": "1992-02-01",
+      "endereco": "Itapeva SP",
+      "celular": "(15) 9960-1066",
+      "email": "leonil.neto@gmail.com",
+      "idade": 34,
+      "id": "ALU006"
     }
   ],
   "matriculas": [
@@ -275,6 +300,14 @@
       "alunoId": "ALU004",
       "cursoId": "CUR003",
       "dataMatricula": "2026-06-22"
+    },
+    {
+      "id": "MAT005",
+      "numero": "20260005",
+      "ano": 2026,
+      "alunoId": "ALU006",
+      "cursoId": "CUR001",
+      "dataMatricula": "2026-07-06"
     }
   ],
   "notas": [
@@ -333,6 +366,13 @@
       "cursoId": "CUR001",
       "disciplinaId": "DISC001",
       "valor": 3
+    },
+    {
+      "id": "NOT009",
+      "alunoId": "ALU006",
+      "cursoId": "CUR003",
+      "disciplinaId": "DISC008",
+      "valor": 8
     }
   ],
   "historicoEscolar": [
@@ -407,6 +447,15 @@
       "nota": 3,
       "ano": 2026,
       "turma": "TUR001"
+    },
+    {
+      "id": "89b3f74c-5976-48f0-8df9-e1a755e5349d",
+      "aluno": "ALU006",
+      "curso": "CUR003",
+      "disciplina": "DISC008",
+      "nota": 5,
+      "ano": 2026,
+      "turma": "TURMA004"
     }
   ],
   "logs": []
